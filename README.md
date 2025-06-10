@@ -7,8 +7,8 @@
 **Invorbit** adalah aplikasi **invoice** modern menggunakan 2 tema yaitu Dark dan Light 🌑 🌕 dan intuitif yang dirancang untuk menyederhanakan proses penagihanmu. Dibangun dengan **React.js** untuk antarmuka pengguna yang dinamis dan **Tailwind CSS** untuk *styling* yang **responsif** dan efisien, Invorbit memastikan pengalaman yang mulus di perangkat apa pun. Baik kamu seorang *freelancer*, usaha kecil, atau profesional, Invorbit membantu kamu membuat, mengirim, dan melacak invoice dengan mudah dan efisien. Fokus kami adalah memberikan pengalaman pengguna yang mulus sehingga kamu bisa fokus pada hal yang paling penting: mengembangkan bisnismu! 💰
 
 Preview Invorbit - Invoice Generator Free in Orbit 
-![Preview](./preview.png)
-![Save](./save.png)
+![Preview](./public/preview.png)
+![Save](.public/save.png)
 
 
 ---
