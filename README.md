@@ -8,9 +8,6 @@
 
 Preview Invorbit - Invoice Generator Free in Orbit 
 ![Preview](./public/preview.png)
-Bila di Simpan :
-![Save](.public/save.png)
-
 
 ---
 
@@ -24,4 +21,9 @@ Bila di Simpan :
 * **Antarmuka Pengguna Interaktif (React.js):** Pengalaman pengguna yang cepat, *smooth*, dan modern. ✨
 * **Ekspor Data:** Ekspor invoice dan laporan dalam berbagai format (PDF, CSV). 💾
 
+
+Bila di Simpan :
+![Save](.public/save.png)
+
+Copyright by Matrix Sync - Malsky
 ---
