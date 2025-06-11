@@ -6,9 +6,11 @@ function App() {
   // Ref untuk elemen yang akan di-capture untuk PDF
   const invoiceRef = useRef(null);
 
+  // Mengubah inisialisasi darkMode menjadi true secara default
   const [darkMode, setDarkMode] = useState(() => {
     const savedTheme = localStorage.getItem('theme');
-    return savedTheme ? savedTheme === 'dark' : false;
+    // Jika ada tema tersimpan, gunakan itu. Jika tidak, set default ke 'dark'
+    return savedTheme ? savedTheme === 'dark' : true;
   });
 
   const [currentView, setCurrentView] = useState('form');
@@ -54,6 +56,9 @@ function App() {
 
   const [taxRate, setTaxRate] = useState(10);
 
+  // State untuk pilihan mata uang
+  const [selectedCurrency, setSelectedCurrency] = useState('IDR'); // Default Rupiah
+
   useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add('dark');
@@ -97,8 +102,41 @@ function App() {
   const taxAmount = (subtotal * taxRate) / 100;
   const total = subtotal + taxAmount;
 
+  // Fungsi format mata uang yang menggunakan selectedCurrency
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(amount);
+    let locale = 'en-US';
+    let currencySymbol = 'USD';
+
+    switch (selectedCurrency) {
+      case 'IDR':
+        locale = 'id-ID';
+        currencySymbol = 'IDR';
+        break;
+      case 'USD':
+        locale = 'en-US';
+        currencySymbol = 'USD';
+        break;
+      case 'EUR':
+        locale = 'de-DE';
+        currencySymbol = 'EUR';
+        break;
+      case 'JPY':
+        locale = 'ja-JP';
+        currencySymbol = 'JPY';
+        break;
+      case 'CNY':
+        locale = 'zh-CN';
+        currencySymbol = 'CNY';
+        break;
+      case 'SAR': // Saudi Riyal
+        locale = 'ar-SA';
+        currencySymbol = 'SAR';
+        break;
+      default:
+        locale = 'id-ID';
+        currencySymbol = 'IDR';
+    }
+    return new Intl.NumberFormat(locale, { style: 'currency', currency: currencySymbol }).format(amount);
   };
 
   // Fungsi untuk mencetak (menggunakan dialog cetak browser)
@@ -123,35 +161,30 @@ function App() {
 
   // Fungsi untuk mengunduh sebagai PDF
   const handleDownloadPdf = async () => {
-    // Pastikan elemen invoiceRef sudah ada
     if (!invoiceRef.current) {
       console.error("Elemen invoice tidak ditemukan!");
       return;
     }
 
-    // Sembunyikan elemen yang tidak perlu muncul di PDF
     const elementsToHide = document.querySelectorAll('.hide-on-print');
     elementsToHide.forEach(el => el.style.display = 'none');
 
-    // Mengubah elemen HTML menjadi canvas
     const canvas = await html2canvas(invoiceRef.current, {
-      scale: 2, // Meningkatkan skala untuk kualitas yang lebih baik
-      useCORS: true, // Penting jika ada gambar dari domain lain (meskipun di sini logo lokal)
+      scale: 2,
+      useCORS: true,
     });
 
-    // Kembalikan tampilan elemen yang disembunyikan
     elementsToHide.forEach(el => el.style.display = '');
 
     const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF('p', 'mm', 'a4'); // Orientasi portrait, unit mm, ukuran A4
-    const imgWidth = 210; // Lebar A4 dalam mm
-    const pageHeight = 297; // Tinggi A4 dalam mm
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const imgWidth = 210;
+    const pageHeight = 297;
 
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
     let heightLeft = imgHeight;
     let position = 0;
 
-    // Tambahkan halaman jika konten lebih panjang dari satu halaman
     pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
     heightLeft -= pageHeight;
 
@@ -162,10 +195,8 @@ function App() {
       heightLeft -= pageHeight;
     }
 
-    // Simpan PDF dengan nama file yang bersih
     pdf.save(`Invoice_${invoiceDetails.invoiceNumber}.pdf`);
   };
-
 
   // SVG Icons for social media
   const InstagramIcon = () => (
@@ -254,12 +285,7 @@ function App() {
                 id="logoUpload"
                 accept="image/*"
                 onChange={handleLogoUpload}
-                className="mt-1 block w-full text-sm text-gray-900 dark:text-gray-100
-                           file:mr-4 file:py-2 file:px-4
-                           file:rounded-md file:border-0
-                           file:text-sm file:font-semibold
-                           file:bg-blue-50 file:text-blue-700
-                           hover:file:bg-blue-100 dark:file:bg-blue-700 dark:file:text-white"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100"
               />
             </div>
             {logoDataUrl && (
@@ -316,7 +342,7 @@ function App() {
             ))}
           </div>
 
-          {/* Bagian Detail Invoice (Nomor & Tanggal) */}
+          {/* Bagian Detail Invoice (Nomor, Tanggal & Mata Uang) */}
           <div className="mb-8 p-4 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600">
             <h3 className="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-200">Invoice Details:</h3>
             <div className="mb-3">
@@ -342,6 +368,25 @@ function App() {
                 onChange={(e) => setInvoiceDetails({ ...invoiceDetails, invoiceDate: e.target.value })}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100"
               />
+            </div>
+            {/* Dropdown Mata Uang */}
+            <div className="mb-3">
+              <label htmlFor="currencySelect" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Currency:
+              </label>
+              <select
+                id="currencySelect"
+                value={selectedCurrency}
+                onChange={(e) => setSelectedCurrency(e.target.value)}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100"
+              >
+                <option value="IDR">Rupiah (IDR)</option>
+                <option value="USD">Dollar (USD)</option>
+                <option value="EUR">Euro (EUR)</option>
+                <option value="JPY">Yen (JPY)</option>
+                <option value="CNY">Yuan (CNY)</option>
+                <option value="SAR">Riyal (SAR)</option>
+              </select>
             </div>
           </div>
 
@@ -654,13 +699,13 @@ function App() {
       <footer className="mt-8 py-6 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-center rounded-lg shadow-inner hide-on-print">
         <p className="mb-4">&copy; {new Date().getFullYear()} Invoice Generator. Made by Matrix Sync.</p>
         <div className="flex justify-center space-x-6">
-          <a href="https://instagram.com/msync_ig" target="_blank" rel="noopener noreferrer" className="hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-200" aria-label="Instagram">
+          <a href="https://instagram.com/msync.matrix" target="_blank" rel="noopener noreferrer" className="hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-200" aria-label="Instagram">
             <InstagramIcon />
           </a>
-          <a href="https://x.com/msync_x" target="_blank" rel="noopener noreferrer" className="hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-200" aria-label="X (Twitter)">
+          <a href="https://x.com/msyncq" target="_blank" rel="noopener noreferrer" className="hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-200" aria-label="X (Twitter)">
             <XIcon />
           </a>
-          <a href="https://github.com/msync-github" target="_blank" rel="noopener noreferrer" className="hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-200" aria-label="GitHub">
+          <a href="https://github.com/icecoffie" target="_blank" rel="noopener noreferrer" className="hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-200" aria-label="GitHub">
             <GithubIcon />
           </a>
         </div>
