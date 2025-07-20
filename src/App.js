@@ -3,13 +3,10 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
 function App() {
-  // Ref untuk elemen yang akan di-capture untuk PDF
   const invoiceRef = useRef(null);
 
-  // Mengubah inisialisasi darkMode menjadi true secara default
   const [darkMode, setDarkMode] = useState(() => {
     const savedTheme = localStorage.getItem('theme');
-    // Jika ada tema tersimpan, gunakan itu. Jika tidak, set default ke 'dark'
     return savedTheme ? savedTheme === 'dark' : true;
   });
 
@@ -39,7 +36,7 @@ function App() {
     bankName: 'Bank Name',
     accountName: 'Your Bank Account Name',
     accountNumber: '123-456-789',
-    swiftCode: 'SWIFTID',
+    msyncCode: 'MSYNC ID',
     dueDate: new Date().toISOString().slice(0, 10),
     notes: 'Thank you for your business!',
   });
@@ -623,7 +620,7 @@ function App() {
               Account Number: <span className="font-medium text-gray-800 dark:text-gray-200">{paymentInfo.accountNumber}</span>
             </p>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              SWIFT Code: <span className="font-medium text-gray-800 dark:text-gray-200">{paymentInfo.swiftCode}</span>
+              MSYNC Code: <span className="font-medium text-gray-800 dark:text-gray-200">{paymentInfo.msyncCode}</span>
             </p>
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Due Date: <span className="font-medium text-gray-800 dark:text-gray-200">{new Date(paymentInfo.dueDate).toLocaleDateString('id-ID')}</span>
